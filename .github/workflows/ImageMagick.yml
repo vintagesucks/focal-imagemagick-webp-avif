@@ -1,0 +1,53 @@
+name: ImageMagick
+
+on: [push]
+
+jobs:
+  build:
+    name: ImageMagick with WebP and AVIF
+    runs-on: ubuntu-20.04
+    container:
+      image: ubuntu:focal
+      options: --user root
+    steps:
+      - name: Install dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install pkg-config software-properties-common wget build-essential autoconf libtool -y
+
+      - name: Install libwebp and libheif
+        run: |
+          add-apt-repository ppa:strukturag/libheif
+          add-apt-repository ppa:strukturag/libde265
+          apt update
+          apt-get install libwebp-dev libheif-dev libde265-dev libx265-dev libaom-dev -y
+
+      - name: Check for libwebp >= 0.4.1
+        run: pkg-config --exists --print-errors "libwebp >= 0.4.1" && echo "libwebp succeeded" || echo "libwebp failed"
+
+      - name: Check for libheif >= 1.4.0
+        run: pkg-config --exists --print-errors "libheif >= 1.4.0" && echo "libheif succeeded" || echo "libheif failed"
+
+      - name: Install ImageMagick
+        run: |
+          cd /usr/src/
+          wget https://www.imagemagick.org/download/ImageMagick.tar.gz
+          tar xf ImageMagick.tar.gz
+          cd ImageMagick-7*
+          ./configure --with-webp=yes --with-heic=yes
+          make
+          make install
+          ldconfig
+
+      - name: magick --version | grep webp
+        run: magick --version | grep webp
+
+      - name: magick -list format | grep WEBP
+        run: magick -list format | grep WEBP
+
+      - name: magick --version | grep heic
+        run: magick --version | grep heic
+
+      - name: magick -list format | grep AVIF
+        run: magick -list format | grep AVIF
