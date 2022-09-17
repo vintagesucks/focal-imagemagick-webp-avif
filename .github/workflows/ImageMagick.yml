@@ -32,7 +32,7 @@ jobs:
       - name: Install ImageMagick
         run: |
           cd /usr/src/
-          wget https://www.imagemagick.org/download/ImageMagick.tar.gz
+          wget https://imagemagick.org/archive/ImageMagick.tar.gz
           tar xf ImageMagick.tar.gz
           cd ImageMagick-7*
           ./configure --with-webp=yes --with-heic=yes
